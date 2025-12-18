@@ -1,0 +1,28 @@
+{
+  "appId": "com.grest.ti.app",
+  "appName": "Grest",
+  "webDir": "build",
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": [
+      "*.digio.in",
+      "*.digitallocker.gov.in",
+      "digitallocker.gov.in",
+      "ext.digio.in"
+    ]
+  },
+  "ios": {
+    "contentInset": "always",
+    "allowsLinkPreview": false,
+    "scrollEnabled": true,
+    "keyboardResize": "native"
+  },
+  "android": {
+    "allowMixedContent": true
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
