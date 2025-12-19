@@ -24,6 +24,7 @@
     "@capacitor/toast": "^7.0.2",
     "@reduxjs/toolkit": "^1.9.7",
     "axios": "^1.5.1",
+    "browser-image-compression": "^2.0.2",
     "build": "^0.1.4",
     "cordova-plugin-file-opener2": "^4.0.0",
     "dotenv": "^16.3.1",
