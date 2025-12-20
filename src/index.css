@@ -16,6 +16,15 @@ body {
 html,body{
   max-height: 100dvh;
 }
+
+/* Make background transparent when barcode scanner is active */
+body.scanner-active {
+  background: transparent !important;
+}
+
+html:has(body.scanner-active) {
+  background: transparent !important;
+}
 @media print {
   .page-break {
     page-break-before: always;

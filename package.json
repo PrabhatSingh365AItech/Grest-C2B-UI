@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -12,6 +12,7 @@
   "dependencies": {
     "@awesome-cordova-plugins/core": "^6.16.0",
     "@awesome-cordova-plugins/file-opener": "^6.16.0",
+    "@capacitor-mlkit/barcode-scanning": "^7.5.0",
     "@capacitor/android": "^7.0.0",
     "@capacitor/app": "^7.0.0",
     "@capacitor/browser": "^7.0.2",

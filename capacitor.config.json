@@ -2,22 +2,9 @@
   "appId": "com.grest.ti.app",
   "appName": "Grest",
   "webDir": "dist",
-  "server": {
-    "androidScheme": "https", 
-    "iosScheme": "https",
-    "allowNavigation": [
-      "*.digio.in",
-      "*.digitallocker.gov.in",
-      "ext.digio.in",
-      "grestc2b://*"
-    ],
-    "cleartext": true,
-    "hostname": "localhost"
-  },
   "ios": {
     "contentInset": "never",
     "allowsLinkPreview": false
-    
   },
   "android": {
     "allowMixedContent": true
@@ -42,6 +29,9 @@
       "allowEditing": false,
       "resultType": "uri",
       "quality": 90
+    },
+    "BarcodeScanner": {
+      "cameraDirection": "back"
     }
   }
 }

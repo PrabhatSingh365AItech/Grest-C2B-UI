@@ -50,7 +50,6 @@ export const CouponCard = ({ title, code, hanldePermanenet, isSelected }) => {
   )
 }
 
-//cupon card dynamic created discount
 export const DynamicCouponCard = ({
   discount,
   hanldePermanenet,
@@ -85,57 +84,6 @@ export const DynamicCouponCard = ({
       </div>
     </div>
   )
-}
-
-function hanldlejsx_pdf(leadData, setReceipt) {
-  console.log('store is', leadData?.store?.storeName)
-  console.log('store is', leadData?.emailId)
-
-  const dateString = leadData?.updatedAt
-  const formattedDate = new Date(dateString).toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-
-  const printElement = ReactDOMServer.renderToString(
-    <PurchaseReceipt
-      phoneNumber={leadData?.phoneNumber}
-      aadharNumber={leadData?.aadharNumber}
-      uniqueCode={leadData?.uniqueCode}
-      emailId={leadData?.emailId}
-      name={leadData?.name}
-      price={leadData?.price}
-      imeiNumber={leadData?.documentId?.IMEI}
-      phoneName={leadData?.modelId?.name}
-      type={leadData?.modelId?.type}
-      storeName={leadData?.store?.storeName}
-      region={leadData?.store?.region}
-      address={leadData?.store?.address}
-      storage={leadData?.storage}
-      RAM={leadData?.ram}
-      formattedDate={formattedDate}
-    />
-  )
-
-  html2pdf()
-    .set({
-      margin: 10,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, logging: false },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'] }, // Ensure page breaks work
-    })
-    .from(printElement)
-    .outputPdf('blob') // Get Blob output
-    .then((blob) => {
-      const file = new File([blob], 'Purchase_Receipt.pdf', {
-        type: 'application/pdf',
-      })
-      console.log('Generated PDF File:', file)
-      setReceipt(file) // Store in state
-    })
-    .catch((err) => console.error('PDF Generation Error:', err))
 }
 
 const SpecialOffers = () => {
@@ -221,34 +169,66 @@ const SpecialOffers = () => {
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    console.log('🔵 Sell Now clicked - Starting submission...')
     setIsLoading(true)
     const userIdToken = sessionStorage.getItem('authToken')
     const LeadId = sessionStorage.getItem('LeadId')
-    const formData = new FormData()
-    formData.append('id', LeadId)
-    formData.append('bonusPrice', responseData.bonus)
-    formData.append('sellingPrice', Math.round(responseData.price))
-    axios
-      .post(
+
+    try {
+      let response
+
+      const requestData = {
+        id: LeadId,
+        bonusPrice: Number(responseData.bonus) || 0,
+        sellingPrice: Number(Math.round(responseData.price)),
+      }
+
+      console.log('🔍 Data types:', {
+        id: typeof LeadId,
+        bonusPrice: typeof requestData.bonusPrice,
+        sellingPrice: typeof requestData.sellingPrice,
+        rawBonus: responseData.bonus,
+        rawPrice: responseData.price,
+      })
+
+      response = await axios.post(
         `${
           import.meta.env.VITE_REACT_APP_ENDPOINT
         }/api/questionnaires/item-purchased`,
-        formData,
-        { headers: { Authorization: userIdToken } }
+        requestData,
+        {
+          headers: {
+            Authorization: userIdToken,
+            'Content-Type': 'application/json',
+          },
+          timeout: 30000,
+        }
       )
-      .then((response) => {
-        setAnswers([])
-        sessionStorage.setItem('messageReceived', response.data.message)
-        sessionStorage.setItem('disableBtn', JSON.stringify(true))
-        setDisableBtn(true)
-        navigate('/productsold')
-        navigateHome()
-      })
-      .catch((err) => {
-        console.log(err)
-        setIsLoading(false)
-      })
+
+      // Only navigate on success
+      setAnswers([])
+      sessionStorage.setItem('messageReceived', response.data.message)
+      sessionStorage.setItem('disableBtn', JSON.stringify(true))
+      setDisableBtn(true)
+      navigate('/productsold')
+      navigateHome()
+    } catch (err) {
+      console.error('SELL NOW ERROR:', err)
+      if (err.status === 400 || err.response?.status === 400) {
+        console.error(
+          'Invalid user or lead ID. Please restart the quote process.'
+        )
+      } else if (err.status === 500 || err.response?.status === 500) {
+        console.error(
+          'Server error:',
+          err.data?.message || err.response?.data?.message
+        )
+      } else if (err.status === 504 || err.response?.status === 504) {
+        console.error('Request timeout. Check your network connection.')
+      }
+      setIsLoading(false)
+    }
   }
 
   const hanldePermanenet = (code) => {

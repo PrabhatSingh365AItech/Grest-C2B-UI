@@ -43,7 +43,7 @@ const Price = () => {
     showBottomSheet,
     handleBottomSheetOptionSelect,
     handleBottomSheetClose,
-    token
+    token,
   } = formState
 
   // Upload Hook
@@ -52,7 +52,7 @@ const Price = () => {
     handleFileChange,
     uploadAllImages,
     isLoading,
-    uploadIndividualFile
+    uploadIndividualFile,
   } = usePriceUpload(formState)
 
   // DEBUG: Test Upload with Local Image
@@ -89,7 +89,8 @@ const Price = () => {
           <div className='mt-3 text-center relative'>
             <h1 className='text-2xl font-semibold'>Upload Documents</h1>
             <p className='mt-4 text-gray-600'>
-              Regulations require you to upload a national identity card. Don't worry, your data will stay safe and private.
+              Regulations require you to upload a national identity card. Don't
+              worry, your data will stay safe and private.
             </p>
           </div>
 

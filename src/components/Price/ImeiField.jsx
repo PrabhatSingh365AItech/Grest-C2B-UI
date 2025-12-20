@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CiBarcode } from 'react-icons/ci'
 import { IMEI_LENGTH } from '../../constants/priceConstants'
 import Scanner from '../Scanner'
+import { Capacitor } from '@capacitor/core'
+import toast from 'react-hot-toast'
 
 const ImeiField = ({ imeinumber, setImeiNumber, prod }) => {
   const [error, setError] = useState('')
@@ -31,11 +33,29 @@ const ImeiField = ({ imeinumber, setImeiNumber, prod }) => {
     }
   }
 
+  useEffect(() => {
+    validateImeiNumber(imeinumber)
+  }, [imeinumber])
+
   const handleVerify = () => {
     if (validateImeiNumber(imeinumber)) {
-      // Handle the verify logic here
       console.log('IMEI number is valid.')
     }
+  }
+
+  const handleScanClick = () => {
+    const platform = Capacitor.getPlatform()
+    if (platform === 'web') {
+      toast.error(
+        'Barcode scanning is only available on the mobile app. Please use the Android or iOS app to scan barcodes.',
+        {
+          duration: 4000,
+          position: 'top-center',
+        }
+      )
+      return
+    }
+    setIsScanOpen(true)
   }
 
   return (
@@ -59,10 +79,7 @@ const ImeiField = ({ imeinumber, setImeiNumber, prod }) => {
               onChange={handleChange}
               maxLength={15}
             />
-            <button
-              onClick={() => setIsScanOpen(!isScanOpen)}
-              title='Scan IMEI'
-            >
+            <button onClick={handleScanClick} title='Scan IMEI'>
               <CiBarcode size={24} className='text-primary' />
             </button>
           </div>
@@ -80,13 +97,11 @@ const ImeiField = ({ imeinumber, setImeiNumber, prod }) => {
       </div>
 
       {isScanOpen && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-          <div className='bg-white p-4 rounded-lg w-full max-w-md'>
-            <Scanner
-              scanBoxSwitch={() => setIsScanOpen(!isScanOpen)}
-              setImei={setImeiNumber}
-            />
-          </div>
+        <div className='fixed inset-0 z-50 bg-white' id='scanner-modal'>
+          <Scanner
+            scanBoxSwitch={() => setIsScanOpen(false)}
+            setImei={setImeiNumber}
+          />
         </div>
       )}
     </>
