@@ -50,25 +50,27 @@ const AadharNumberField = ({
       if (data.url && data.url.includes('grestc2b://digilocker/callback')) {
         // Close the system browser
         await Browser.close()
-        
-        const response = parseDigilockerCallback(data.url)
-        
-        if (response) {
-          setIsVerifying(false)
 
-          // Check for errors
-          if (response.error_code || response.message === 'failed') {
+        const response = parseDigilockerCallback(data.url)
+
+        if (response) {
+          console.log('Deep link callback response:', response)
+
+          // Check for success FIRST - ignore cancelled if no error_code
+          if (response.message === 'success' || (response.message !== 'failed' && !response.error_code)) {
+            setIsVerifying(false)
+            setError('')
+            setIsVerified(true)
+            toast.success('Aadhar verified successfully!')
+            console.log('Verification completed successfully via deep link', response)
+          }
+          // Only treat as error if there's an error_code or explicit failure
+          else if (response.error_code || response.message === 'failed') {
+            setIsVerifying(false)
             const errorMessage = response.message || 'Verification failed. Please try again.'
             setError(errorMessage)
             toast.error(errorMessage)
             console.error('Error in Digilocker process:', response)
-          }
-          // Check for success
-          else if (response.message === 'success' || !response.error_code) {
-            setError('')
-            setIsVerified(true)
-            toast.success('Aadhar verified successfully!')
-            console.log('Verification completed successfully', response)
           }
         }
       }
@@ -129,10 +131,27 @@ const AadharNumberField = ({
       const digio = initializeDigilocker({
         callback: function (sdkResponse) {
           console.log('Digilocker SDK Response:', sdkResponse)
+
+          // On iOS, ignore SDK callback if verification is already done via deep link
+          if (isVerified) {
+            console.log('Verification already completed via deep link, ignoring SDK callback')
+            return
+          }
+
           setIsVerifying(false)
 
-          // Check for errors in the response
+          // Check for successful verification FIRST
           if (
+            sdkResponse.message === 'success' ||
+            (sdkResponse.message !== 'failed' && sdkResponse.message !== 'cancelled' && !sdkResponse.hasOwnProperty('error_code'))
+          ) {
+            setError('')
+            setIsVerified(true)
+            toast.success('Aadhar verified successfully!')
+            console.log('Verification completed successfully', sdkResponse)
+          }
+          // Check for errors in the response
+          else if (
             sdkResponse.hasOwnProperty('error_code') ||
             sdkResponse.message === 'failed'
           ) {
@@ -141,16 +160,6 @@ const AadharNumberField = ({
             setError(errorMessage)
             toast.error(errorMessage)
             console.error('Error in Digilocker process:', sdkResponse)
-          }
-          // Check for successful verification
-          else if (
-            sdkResponse.message === 'success' ||
-            !sdkResponse.hasOwnProperty('error_code')
-          ) {
-            setError('')
-            setIsVerified(true)
-            toast.success('Aadhar verified successfully!')
-            console.log('Verification completed successfully', sdkResponse)
           }
         },
         event_listener: function (event) {
