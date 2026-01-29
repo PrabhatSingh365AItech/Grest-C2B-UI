@@ -52,11 +52,9 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <!--
-        Media permissions for accessing gallery through file inputs.
-        For Android 13+ (API 33+), we use READ_MEDIA_IMAGES.
-        For older versions, we use READ_EXTERNAL_STORAGE.
+        Using system photo picker instead of READ_MEDIA_IMAGES permission.
+        For Android 12 and below (API 32-), we use READ_EXTERNAL_STORAGE.
     -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 
     <!-- Camera hardware features (not required - app works without rear camera) -->
