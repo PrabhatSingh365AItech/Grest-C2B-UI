@@ -172,7 +172,7 @@ const LeadsCompletedTable = ({ data }) => {
       year: "numeric",
     });
 
-    const maskInfo = data[index].companyInfo.maskInfo;
+    const maskInfo = data[index]?.companyInfo?.maskInfo;
 
     const signatureUrl = data[index]?.documentId?.signature;
     const signatureBase64 = signatureUrl
